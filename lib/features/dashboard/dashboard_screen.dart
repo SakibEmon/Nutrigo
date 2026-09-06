@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/image/image_picker_service.dart';
 import '../../services/gamification_service.dart';
+import '../../services/notification_service.dart';
+import '../notifications/notification_screen.dart';
 import '../tasks/meal_preview_screen.dart';
 
 import 'widgets/ai_command_center.dart';
@@ -45,6 +47,14 @@ class DashboardScreen extends StatelessWidget {
       // যদি AI কনফার্ম করে এটি সত্যিকারের খাবার, তবেই +5 XP যোগ হবে
       if (isFoodValid == true) {
         await GamificationService.addXp(5, reason: "Valid Food Scanned");
+
+        // খাবার স্ক্যান সম্পূর্ণ হলে পুশ নোটিফিকেশন পাঠানো ও হিস্ট্রিতে সেভ করা
+        await NotificationService.showAndSaveNotification(
+          title: "Meal Scan Complete! 🍽️",
+          body: "Your nutritional analysis is ready. Check your recent meals!",
+          type: "meal",
+          payload: "recent_meals",
+        );
 
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,15 +98,48 @@ class DashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ==================================================
-              // TOP BAR (Nutrigo Brand Header)
+              // TOP BAR (Nutrigo Brand & Notification Bell)
               // ==================================================
-              const Text(
-                "Nutrigo",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Nutrigo",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      tooltip: "Notifications",
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Color(0xff4CAF50),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),

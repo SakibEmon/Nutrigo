@@ -36,62 +36,26 @@ class GreetingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final userName = _getUserName();
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _getGreeting(),
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                "$userName 👋",
-                style: GoogleFonts.poppins(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                "Let's make today healthier.",
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
+        Text(
+          _getGreeting(),
+          style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey.shade600),
         ),
 
-        Container(
-          width: 58,
-          height: 58,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.05),
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: Color(0xff4CAF50),
-            size: 30,
-          ),
+        const SizedBox(height: 8),
+
+        Text(
+          "$userName 👋",
+          style: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w700),
+        ),
+
+        const SizedBox(height: 8),
+
+        Text(
+          "Let's make today healthier.",
+          style: GoogleFonts.poppins(fontSize: 15, color: Colors.grey.shade600),
         ),
       ],
     );

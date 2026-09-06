@@ -9,6 +9,7 @@ import '../../core/image/image_converter.dart';
 import '../../core/image/image_validator.dart';
 import '../../models/meal_history.dart';
 import '../../services/meal_history_service.dart';
+import '../../services/notification_service.dart';
 import '../../services/nutrition_score_service.dart';
 import 'nutrition_result_screen.dart';
 
@@ -213,9 +214,18 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
         "Meal Analysis",
       );
 
+      // ইনস্ট্যান্ট নোটিফিকেশন পাঠানো
+      await NotificationService.showAndSaveNotification(
+        title: "Meal Scan Complete! 🍽️",
+        body: "Your scan for '${nutrition.mealName}' is complete! View report.",
+        type: "meal",
+        payload: "recent_meals",
+      );
+
       if (!mounted) return;
 
-      final result = await Navigator.push<bool>(
+      // রেজাল্ট পেজে যাওয়া
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) =>
@@ -224,7 +234,8 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
       );
 
       if (!mounted) return;
-      Navigator.pop(context, result == true);
+      // ড্যাশবোর্ডে সাকসেস ট্রু পাঠানো
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

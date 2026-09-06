@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import 'notification_service.dart';
+
 class GamificationService {
   static final _firestore = FirebaseFirestore.instance;
   static final _auth = FirebaseAuth.instance;
@@ -41,13 +43,10 @@ class GamificationService {
             .inDays;
 
         if (differenceInDays == 1) {
-          // পরদিন ঢুকেছে -> স্ট্রিক ১ বাড়বে
           currentStreak += 1;
         } else if (differenceInDays > 1) {
-          // ১ দিনের বেশি গ্যাপ হয়েছে -> রিসেট হয়ে ১ হবে
           currentStreak = 1;
         }
-        // differenceInDays == 0 হলে একই দিন, স্ট্রিক অপরিবর্তিত থাকবে
       }
 
       // ২. MEAL TIME LOGIN XP CHECK (Breakfast, Lunch, Dinner)
@@ -56,27 +55,30 @@ class GamificationService {
       }
 
       int earnedMealXp = 0;
+      String mealName = "";
       final hour = now.hour;
 
       // Breakfast Window (6:00 AM - 11:00 AM)
       if (hour >= 6 && hour < 11 && mealLogins['breakfast'] != true) {
         mealLogins['breakfast'] = true;
         earnedMealXp += 15;
+        mealName = "Breakfast Check-in";
       }
       // Lunch Window (12:00 PM - 4:00 PM)
       else if (hour >= 12 && hour < 16 && mealLogins['lunch'] != true) {
         mealLogins['lunch'] = true;
         earnedMealXp += 15;
+        mealName = "Lunch Check-in";
       }
       // Dinner Window (7:00 PM - 11:00 PM)
       else if (hour >= 19 && hour < 23 && mealLogins['dinner'] != true) {
         mealLogins['dinner'] = true;
         earnedMealXp += 15;
+        mealName = "Dinner Check-in";
       }
 
       currentXp += earnedMealXp;
 
-      // Firestore আপডেট
       await userDocRef.set({
         'streakCount': currentStreak,
         'xp': currentXp,
@@ -84,6 +86,14 @@ class GamificationService {
         'lastMealLoginDate': todayDateStr,
         'mealLoginsToday': mealLogins,
       }, SetOptions(merge: true));
+
+      if (earnedMealXp > 0) {
+        await NotificationService.showAndSaveNotification(
+          title: "Meal Check-in Bonus! ⭐",
+          body: "Great job! You earned +$earnedMealXp XP for $mealName.",
+          type: "xp",
+        );
+      }
     } catch (e) {
       debugPrint("Gamification update error: $e");
     }
@@ -102,6 +112,14 @@ class GamificationService {
         'xp': FieldValue.increment(points),
       }, SetOptions(merge: true));
       debugPrint("Earned $points XP for: $reason");
+
+      await NotificationService.showAndSaveNotification(
+        title: "XP Earned! ⭐",
+        body: reason.isNotEmpty
+            ? "Awesome! You earned +$points XP for $reason."
+            : "Awesome! You earned +$points XP.",
+        type: "xp",
+      );
     } catch (e) {
       debugPrint("Error adding XP: $e");
     }
