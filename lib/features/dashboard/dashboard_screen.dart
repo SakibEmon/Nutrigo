@@ -1,11 +1,9 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/image/image_picker_service.dart';
 import '../../services/gamification_service.dart';
-import '../login/login_screen.dart';
 import '../tasks/meal_preview_screen.dart';
 
 import 'widgets/ai_command_center.dart';
@@ -76,66 +74,6 @@ class DashboardScreen extends StatelessWidget {
   }
 
   // ============================================================
-  // LOGOUT
-  // ============================================================
-
-  Future<void> _logout(BuildContext context) async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text("Logout?"),
-          content: const Text("Are you sure you want to logout?"),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
-              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff4CAF50),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Logout"),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirm != true) return;
-
-    try {
-      await FirebaseAuth.instance.signOut();
-
-      if (!context.mounted) return;
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Logout failed. Please try again."),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
-  }
-
-  // ============================================================
   // BUILD
   // ============================================================
 
@@ -147,45 +85,18 @@ class DashboardScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ==================================================
-              // TOP BAR
+              // TOP BAR (Nutrigo Brand Header)
               // ==================================================
-              Row(
-                children: [
-                  const Text(
-                    "Nutrigo",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      tooltip: "Logout",
-                      onPressed: () {
-                        _logout(context);
-                      },
-                      icon: const Icon(
-                        Icons.logout_rounded,
-                        color: Color(0xff4CAF50),
-                      ),
-                    ),
-                  ),
-                ],
+              const Text(
+                "Nutrigo",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
               ),
 
               const SizedBox(height: 20),

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../login/login_screen.dart';
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -83,10 +85,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           _bioController.text = _bio;
-          if (_heightFeet > 0)
+          if (_heightFeet > 0) {
             _feetController.text = _heightFeet.toInt().toString();
-          if (_heightInch > 0)
+          }
+          if (_heightInch > 0) {
             _inchController.text = _heightInch.toInt().toString();
+          }
           if (_weightKg > 0) _weightController.text = _weightKg.toString();
         });
       }
@@ -173,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       source: ImageSource.gallery,
       maxWidth: 400,
       maxHeight: 400,
-      imageQuality: 70, // সাইজ ছোট রাখার জন্য কম্প্রেস করা হয়েছে
+      imageQuality: 70, // সাইজ ছোট রাখার জন্য কম্প্রেস করা হয়েছে
     );
     if (pickedFile != null) {
       final file = File(pickedFile.path);
@@ -256,6 +260,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  // ============================================================
+  // LOGOUT METHOD
+  // ============================================================
+
+  Future<void> _logout(BuildContext context) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            "Logout?",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            "Are you sure you want to logout from Nutrigo?",
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                "Cancel",
+                style: GoogleFonts.poppins(color: Colors.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                "Logout",
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!context.mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Logout failed. Please try again."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     }
   }
 
@@ -618,7 +694,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+
+            // =========================
+            // LOGOUT BUTTON (NEW)
+            // =========================
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: OutlinedButton.icon(
+                onPressed: () => _logout(context),
+                icon: const Icon(
+                  Icons.logout_rounded,
+                  color: Colors.redAccent,
+                  size: 20,
+                ),
+                label: Text(
+                  "Logout",
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xffFFCDD2), width: 1.5),
+                  backgroundColor: const Color(0xffFFEBEE),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
