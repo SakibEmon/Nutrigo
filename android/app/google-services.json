@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "432523248645",
+    "project_id": "nutrigo-8bd9b",
+    "storage_bucket": "nutrigo-8bd9b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432523248645:android:6f9cafa85b9437d8b6086c",
+        "android_client_info": {
+          "package_name": "com.example.nutrigo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCz9KyodcjXXBQA0iuOLT-MjLRhzx0zv_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
