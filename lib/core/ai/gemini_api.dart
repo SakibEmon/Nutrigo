@@ -7,7 +7,6 @@ import 'api_key.dart';
 import 'gemini_prompt.dart';
 
 class GeminiApi {
-  // অফিসিয়াল একটিভ মডেল এন্ডপয়েন্ট
   static const String _endpoint =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 

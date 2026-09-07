@@ -163,7 +163,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   }
 
   // ============================================================
-  // SCAN MEAL
+  // SCAN MEAL (STRICT VALIDATION)
   // ============================================================
 
   Future<void> _scanMeal() async {
@@ -173,15 +173,11 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
         imageQuality: 85,
       );
 
-      if (pickedFile == null) {
-        return;
-      }
+      if (pickedFile == null) return;
+      if (!mounted) return;
 
-      if (!mounted) {
-        return;
-      }
-
-      final result = await Navigator.push<bool>(
+      // MealPreviewScreen-এ কোর্স নির্দিষ্ট টার্গেট মিল পাঠানো হচ্ছে
+      final bool? isMatched = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
           builder: (_) => MealPreviewScreen(
@@ -191,11 +187,10 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
         ),
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
-      if (result == true) {
+      // শুধুমাত্র AI কনফার্মড ম্যাচ (score >= 75%) হলে টাস্ক অ্যাপ্রুভ হবে
+      if (isMatched == true) {
         setState(() {
           _mealScanned = true;
           _quizPassed = false;
@@ -204,17 +199,31 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "Today's meal matched successfully! ✅",
+              "Today's meal matched successfully! (≥75% verified) ✅",
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: const Color(0xff4CAF50),
           ),
         );
+      } else {
+        // ম্যাচ না হলে কোনো অগ্রগতি হবে না
+        setState(() {
+          _mealScanned = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Meal did not match '$_targetMeal'! Please scan the correct required meal.",
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.orange.shade800,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -242,7 +251,6 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
           ),
         ),
       );
-
       return;
     }
 
@@ -256,9 +264,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
       ),
     );
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (result == true) {
       setState(() {
@@ -282,30 +288,19 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   // ============================================================
 
   Future<void> completeLesson() async {
-    if (_completing) {
-      return;
-    }
-
-    // ----------------------------------------------------------
-    // CHECK MEAL
-    // ----------------------------------------------------------
+    if (_completing) return;
 
     if (!_mealScanned) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "Please complete today's meal task first 📷",
+            "Please scan the required meal first 📷",
             style: GoogleFonts.poppins(),
           ),
         ),
       );
-
       return;
     }
-
-    // ----------------------------------------------------------
-    // CHECK QUIZ
-    // ----------------------------------------------------------
 
     if (!_quizPassed) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -316,7 +311,6 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
           ),
         ),
       );
-
       return;
     }
 
@@ -325,19 +319,13 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
     });
 
     try {
-      // ========================================================
-      // SAVE COMPLETED DAY
-      // ========================================================
-
       await CourseService.completeDay(
         courseId: widget.courseId,
         defaultLessons: widget.defaultLessons,
         dayNumber: widget.dayNumber,
       );
 
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -349,12 +337,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
         ),
       );
 
-      // Return true to LessonScreen
       Navigator.pop(context, true);
     } catch (e) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -382,7 +367,6 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffF8FBF8),
-
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -392,39 +376,23 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-
           children: [
-            // =====================================================
-            // TASK HEADER
-            // =====================================================
             const TaskHeader(),
-
             const SizedBox(height: 30),
-
-            // =====================================================
-            // TASK REQUIREMENT
-            // =====================================================
             const TaskRequirement(),
-
             const SizedBox(height: 30),
 
-            // =====================================================
             // TODAY'S ASSIGNED MEAL
-            // =====================================================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(22),
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(.04),
@@ -433,34 +401,27 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   ),
                 ],
               ),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
                   Row(
                     children: [
                       Container(
                         width: 48,
                         height: 48,
-
                         decoration: const BoxDecoration(
                           color: Color(0xffE8F5E9),
                           shape: BoxShape.circle,
                         ),
-
                         child: const Icon(
                           Icons.restaurant_menu,
                           color: Color(0xff4CAF50),
                         ),
                       ),
-
                       const SizedBox(width: 14),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-
                           children: [
                             Text(
                               "Today's Meal",
@@ -469,9 +430,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                                 color: Colors.grey,
                               ),
                             ),
-
                             const SizedBox(height: 3),
-
                             Text(
                               _targetMeal,
                               style: GoogleFonts.poppins(
@@ -484,9 +443,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 14),
-
                   Text(
                     "Prepare this meal and take a clear photo for AI verification.",
                     style: GoogleFonts.poppins(
@@ -501,17 +458,13 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
 
             const SizedBox(height: 30),
 
-            // =====================================================
             // MEAL SCANNER
-            // =====================================================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-
               decoration: BoxDecoration(
                 color: const Color(0xff4CAF50),
                 borderRadius: BorderRadius.circular(28),
-
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xff4CAF50).withOpacity(.25),
@@ -520,18 +473,15 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   ),
                 ],
               ),
-
               child: Column(
                 children: [
                   Container(
                     width: 90,
                     height: 90,
-
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(.18),
                       shape: BoxShape.circle,
                     ),
-
                     child: Icon(
                       _mealScanned
                           ? Icons.check_circle_rounded
@@ -540,9 +490,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Text(
                     _mealScanned
                         ? "Meal Verified Successfully"
@@ -554,12 +502,10 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   Text(
                     _mealScanned
-                        ? "Your meal matched today's assigned meal."
+                        ? "Your meal matched today's assigned meal (≥75%)."
                         : "Take a photo of your prepared meal and let AI verify it.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
@@ -567,20 +513,15 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       height: 1.5,
                     ),
                   ),
-
                   const SizedBox(height: 26),
-
                   SizedBox(
                     width: double.infinity,
                     height: 56,
-
                     child: ElevatedButton.icon(
                       onPressed: _scanMeal,
-
                       icon: Icon(
                         _mealScanned ? Icons.refresh : Icons.camera_alt,
                       ),
-
                       label: Text(
                         _mealScanned ? "Scan Again" : "Open Camera",
                         style: GoogleFonts.poppins(
@@ -588,12 +529,10 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                           fontSize: 16,
                         ),
                       ),
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xff4CAF50),
                         elevation: 0,
-
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
@@ -606,24 +545,18 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
 
             const SizedBox(height: 30),
 
-            // =====================================================
             // QUIZ
-            // =====================================================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-
               decoration: BoxDecoration(
                 color: Colors.white,
-
                 borderRadius: BorderRadius.circular(22),
-
                 border: Border.all(
                   color: _quizPassed
                       ? Colors.green.shade200
                       : Colors.grey.shade200,
                 ),
-
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(.04),
@@ -632,7 +565,6 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   ),
                 ],
               ),
-
               child: Column(
                 children: [
                   Row(
@@ -640,14 +572,12 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       Container(
                         width: 52,
                         height: 52,
-
                         decoration: BoxDecoration(
                           color: _quizPassed
                               ? Colors.green.shade50
                               : const Color(0xffE8F5E9),
                           shape: BoxShape.circle,
                         ),
-
                         child: Icon(
                           _quizPassed ? Icons.check_circle : Icons.quiz_rounded,
                           color: _quizPassed
@@ -655,9 +585,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                               : const Color(0xff4CAF50),
                         ),
                       ),
-
                       const SizedBox(width: 14),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -669,9 +597,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-
                             const SizedBox(height: 4),
-
                             Text(
                               _quizPassed
                                   ? "You passed today's quiz."
@@ -686,28 +612,21 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 18),
-
                   SizedBox(
                     width: double.infinity,
                     height: 52,
-
                     child: ElevatedButton.icon(
                       onPressed: _mealScanned ? _startQuiz : null,
-
                       icon: Icon(_quizPassed ? Icons.replay : Icons.play_arrow),
-
                       label: Text(
                         _quizPassed ? "Retake Quiz" : "Start Quiz",
                         style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                       ),
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xff4CAF50),
                         disabledBackgroundColor: Colors.grey.shade300,
                         foregroundColor: Colors.white,
-
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -720,18 +639,14 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
 
             const SizedBox(height: 30),
 
-            // =====================================================
-            // COMPLETE LESSON
-            // =====================================================
+            // COMPLETE LESSON BUTTON
             SizedBox(
               width: double.infinity,
               height: 58,
-
               child: ElevatedButton.icon(
                 onPressed: _completing || !_mealScanned || !_quizPassed
                     ? null
                     : completeLesson,
-
                 icon: _completing
                     ? const SizedBox(
                         width: 20,
@@ -742,26 +657,20 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                         ),
                       )
                     : const Icon(Icons.check_circle_outline),
-
                 label: Text(
                   _completing ? "Saving..." : "Complete Lesson",
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                 ),
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff4CAF50),
-
                   disabledBackgroundColor: Colors.grey.shade300,
-
                   foregroundColor: Colors.white,
-
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
                 ),
               ),
             ),
-
             const SizedBox(height: 40),
           ],
         ),

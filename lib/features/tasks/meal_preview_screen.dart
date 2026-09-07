@@ -47,9 +47,6 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // ====================================================
-            // ASSIGNED MEAL
-            // ====================================================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -71,7 +68,7 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Today's Assigned Meal",
+                          "Target Meal",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.grey.shade700,
@@ -93,10 +90,6 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
               ),
             ),
             const SizedBox(height: 18),
-
-            // ====================================================
-            // IMAGE
-            // ====================================================
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
@@ -108,24 +101,18 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // ====================================================
-            // RETAKE
-            // ====================================================
             SizedBox(
               width: double.infinity,
               height: 56,
               child: OutlinedButton.icon(
-                onPressed: _loading ? null : () => Navigator.pop(context),
+                onPressed: _loading
+                    ? null
+                    : () => Navigator.pop(context, false),
                 icon: const Icon(Icons.refresh),
                 label: Text('Retake', style: GoogleFonts.poppins()),
               ),
             ),
             const SizedBox(height: 14),
-
-            // ====================================================
-            // ANALYSE
-            // ====================================================
             SizedBox(
               width: double.infinity,
               height: 58,
@@ -162,7 +149,7 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
   }
 
   // ============================================================
-  // ANALYSE MEAL
+  // ANALYSE MEAL (STRICT 75% THRESHOLD & TASK LOGIC)
   // ============================================================
   Future<void> _analyseMeal() async {
     if (_loading) return;
@@ -190,12 +177,20 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
 
       final nutrition = NutritionResult.fromJson(aiResponse);
 
+      // ৭৫% ম্যাচিং এবং টার্গেট মিল ভ্যালিডেশন লজিক
+      final bool isSpecificTarget =
+          widget.targetMeal.toLowerCase() != "food item";
+      final bool isMatchValid = isSpecificTarget
+          ? (nutrition.mealMatched && (nutrition.confidence >= 75))
+          : nutrition.healthy; // Standalone স্ক্যানের জন্য খাদ্য হলেই চলবে
+
+      // হিস্ট্রি সবসময় সেভ হবে যাতে ইউজার দেখতে পায় সে কি স্ক্যান করেছে
       await MealHistoryService.saveMeal(
         MealHistory(
           imagePath: widget.image.path,
           mealName: nutrition.mealName,
           healthy: nutrition.healthy,
-          mealMatched: nutrition.mealMatched,
+          mealMatched: isMatchValid,
           confidence: nutrition.confidence,
           calories: nutrition.calories,
           protein: nutrition.protein,
@@ -208,23 +203,25 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
         ),
       );
 
-      // পয়েন্ট যোগ (+১ পয়েন্ট)
-      await NutritionScoreService.addPoints(
-        NutritionScoreService.pointsMealAnalysis,
-        "Meal Analysis",
-      );
+      // শুধুমাত্র ম্যাচ সঠিক হলেই পয়েন্ট এবং সাকসেস নোটিফিকেশন আসবে
+      if (isMatchValid) {
+        await NutritionScoreService.addPoints(
+          NutritionScoreService.pointsMealAnalysis,
+          "Meal Analysis",
+        );
 
-      // ইনস্ট্যান্ট নোটিফিকেশন পাঠানো
-      await NotificationService.showAndSaveNotification(
-        title: "Meal Scan Complete! 🍽️",
-        body: "Your scan for '${nutrition.mealName}' is complete! View report.",
-        type: "meal",
-        payload: "recent_meals",
-      );
+        await NotificationService.showAndSaveNotification(
+          title: "Meal Matched! 🍽️",
+          body:
+              "Great job! Your meal matched '${nutrition.mealName}' (${nutrition.confidence}% match).",
+          type: "meal",
+          payload: "recent_meals",
+        );
+      }
 
       if (!mounted) return;
 
-      // রেজাল্ট পেজে যাওয়া
+      // রেজাল্ট স্ক্রিনে রেজাল্ট দেখানো
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -234,8 +231,9 @@ class _MealPreviewScreenState extends State<MealPreviewScreen> {
       );
 
       if (!mounted) return;
-      // ড্যাশবোর্ডে সাকসেস ট্রু পাঠানো
-      Navigator.pop(context, true);
+
+      // ম্যাচ হলে true যাবে (টাস্ক কমপ্লিট হবে), ম্যাচ না হলে false যাবে (টাস্ক কমপ্লিট হবে না)
+      Navigator.pop(context, isMatchValid);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
