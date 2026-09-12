@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../login/login_screen.dart';
+import '../settings/settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -177,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       source: ImageSource.gallery,
       maxWidth: 400,
       maxHeight: 400,
-      imageQuality: 70, // সাইজ ছোট রাখার জন্য কম্প্রেস করা হয়েছে
+      imageQuality: 70,
     );
     if (pickedFile != null) {
       final file = File(pickedFile.path);
@@ -379,6 +380,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 19),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.black87),
+            tooltip: "Settings",
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              ).then((_) => _loadUserProfile());
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -633,9 +647,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
                   Text(
                     bmiValue > 0 ? bmiValue.toStringAsFixed(1) : "--",
                     style: GoogleFonts.poppins(
@@ -644,9 +656,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: statusColor,
                     ),
                   ),
-
                   const SizedBox(height: 2),
-
                   Text(
                     bmiStatus["desc"],
                     textAlign: TextAlign.center,
@@ -697,7 +707,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
 
             // =========================
-            // LOGOUT BUTTON (NEW)
+            // LOGOUT BUTTON
             // =========================
             SizedBox(
               width: double.infinity,

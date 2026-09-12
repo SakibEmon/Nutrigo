@@ -43,12 +43,10 @@ class NotificationService {
           >();
 
       if (androidImplementation != null) {
-        // Android 13+ এর জন্য রানটাইম পারমিশন প্রম্পট
         await androidImplementation.requestNotificationsPermission();
 
-        // অ্যান্ড্রয়েড ৮+ এর জন্য নোটিফিকেশন চ্যানেল নিশ্চিতভাবে রেজিস্টার করা
         const AndroidNotificationChannel channel = AndroidNotificationChannel(
-          'nutrigo_instant_alerts_v2', // ইউনিক চ্যানেল আইডি
+          'nutrigo_instant_alerts_v2',
           'NutriGo Instant Alerts',
           description: 'Instant alerts, meal scans, and XP updates',
           importance: Importance.max,
@@ -67,7 +65,7 @@ class NotificationService {
   }
 
   // ============================================================
-  // SHOW & SAVE NOTIFICATION (with optional payload)
+  // SHOW & SAVE NOTIFICATION
   // ============================================================
   static Future<void> showAndSaveNotification({
     required String title,
@@ -78,16 +76,16 @@ class NotificationService {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
-      const AndroidNotificationDetails
-      androidDetails = AndroidNotificationDetails(
-        'nutrigo_instant_alerts_v2', // উপরে রেজিস্টার করা চ্যানেলের সাথে হুবহু এক
-        'NutriGo Instant Alerts',
-        channelDescription: 'Instant alerts, meal scans, and XP updates',
-        importance: Importance.max,
-        priority: Priority.high,
-        playSound: true,
-        enableVibration: true,
-      );
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+            'nutrigo_instant_alerts_v2',
+            'NutriGo Instant Alerts',
+            channelDescription: 'Instant alerts, meal scans, and XP updates',
+            importance: Importance.max,
+            priority: Priority.high,
+            playSound: true,
+            enableVibration: true,
+          );
 
       const NotificationDetails notificationDetails = NotificationDetails(
         android: androidDetails,
@@ -124,33 +122,35 @@ class NotificationService {
   }
 
   // ============================================================
-  // SCHEDULED REMINDERS
+  // SCHEDULED REMINDERS (Updated Times)
   // ============================================================
   static Future<void> scheduleDailyMealReminders() async {
+    // Breakfast window: 7:00 AM - 11:00 AM (Alert at 8:00 AM)
     await _scheduleMealAlert(
       id: 101,
       hour: 8,
-      minute: 30,
-      title: "Good Morning! Time for Breakfast 🍳",
-      body:
-          "Start your day with wholesome nutrients! Don't forget to log your meal.",
+      minute: 0,
+      title: "Breakfast Time (7 AM - 11 AM) 🍳",
+      body: "Start your day right! Scan your breakfast before 11:00 AM.",
     );
 
+    // Lunch window: 12:00 PM - 3:00 PM (Alert at 12:30 PM)
     await _scheduleMealAlert(
       id: 102,
-      hour: 13,
+      hour: 12,
       minute: 30,
-      title: "Lunch Time is Here 🥗",
-      body:
-          "Refuel your body for the rest of the day. Take a snap and analyze your meal!",
+      title: "Lunch Window is Open (12 PM - 3 PM) 🥗",
+      body: "Refuel your body! Scan and verify your lunch before 3:00 PM.",
     );
 
+    // Dinner window: 8:00 PM - 10:00 PM (Alert at 8:15 PM)
     await _scheduleMealAlert(
       id: 103,
       hour: 20,
-      minute: 30,
-      title: "Healthy Dinner Reminder 🍲",
-      body: "Keep it light and healthy for optimal recovery tonight.",
+      minute: 15,
+      title: "Dinner Window is Open (8 PM - 10 PM) 🍲",
+      body:
+          "Keep it light and healthy! Complete your dinner scan before 10:00 PM.",
     );
   }
 

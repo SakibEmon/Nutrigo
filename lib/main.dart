@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/theme/theme_provider.dart';
 import 'features/splash/splash_screen.dart';
 import 'services/notification_service.dart';
 
@@ -21,18 +22,40 @@ class NutrigoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: NotificationService.navigatorKey,
-      title: "Nutrigo",
-      debugShowCheckedModeBanner: false,
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeProvider.themeModeNotifier,
+      builder: (context, currentMode, _) {
+        return MaterialApp(
+          navigatorKey: NotificationService.navigatorKey,
+          title: "Nutrigo",
+          debugShowCheckedModeBanner: false,
+          themeMode: currentMode,
 
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xffFFFDF8),
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff4CAF50)),
-      ),
+          // Light Theme
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: const Color(0xffFFFDF8),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xff4CAF50),
+              brightness: Brightness.light,
+            ),
+          ),
 
-      home: const SplashScreen(),
+          // Dark Theme
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xff121212),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xff4CAF50),
+              brightness: Brightness.dark,
+            ),
+          ),
+
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }

@@ -77,9 +77,9 @@ class _MissionSectionState extends State<MissionSection> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _historyItem("Breakfast (7 AM - 10 AM)", history.breakfast),
+              _historyItem("Breakfast (7 AM - 11 AM)", history.breakfast),
               const Divider(),
-              _historyItem("Lunch (1 PM - 3 PM)", history.lunch),
+              _historyItem("Lunch (12 PM - 3 PM)", history.lunch),
               const Divider(),
               _historyItem("Dinner (8 PM - 10 PM)", history.dinner),
             ],
@@ -157,11 +157,11 @@ class _MissionSectionState extends State<MissionSection> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              // 1. BREAKFAST
+              // 1. BREAKFAST (7:00 AM - 11:00 AM)
               MissionCard(
                 mealType: "Breakfast",
                 targetMeal: "Oatmeal with Boiled Egg & Fruits",
-                timeRange: "7:00 AM - 10:00 AM",
+                timeRange: "7:00 AM - 11:00 AM",
                 recipe:
                     "1. Boil 1 cup of oats with milk/water.\n2. Add 1 boiled egg on the side.\n3. Top with sliced banana or apple.",
                 icon: Icons.breakfast_dining,
@@ -170,11 +170,11 @@ class _MissionSectionState extends State<MissionSection> {
                 onRefresh: _loadData,
               ),
 
-              // 2. LUNCH
+              // 2. LUNCH (12:00 PM - 3:00 PM)
               MissionCard(
                 mealType: "Lunch",
                 targetMeal: "Brown Rice, Mixed Vegetables & Lentils",
-                timeRange: "1:00 PM - 3:00 PM",
+                timeRange: "12:00 PM - 3:00 PM",
                 recipe:
                     "1. Prepare 1 small bowl of steamed brown rice.\n2. Add cooked mixed vegetable curry.\n3. Take 1 thick cup of lentil (dal) soup.",
                 icon: Icons.lunch_dining,
@@ -183,7 +183,7 @@ class _MissionSectionState extends State<MissionSection> {
                 onRefresh: _loadData,
               ),
 
-              // 3. DINNER
+              // 3. DINNER (8:00 PM - 10:00 PM)
               MissionCard(
                 mealType: "Dinner",
                 targetMeal: "Grilled Chicken Salad / Veg Soup",

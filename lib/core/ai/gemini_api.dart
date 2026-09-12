@@ -7,7 +7,7 @@ import 'api_key.dart';
 import 'gemini_prompt.dart';
 
 class GeminiApi {
-  // বর্তমানে সক্রিয় ও দ্রুততম জেমিনাই মডেল
+
   static const String _activeModel = 'gemini-3.6-flash';
 
   static String get _endpoint =>
