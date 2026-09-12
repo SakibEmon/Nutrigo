@@ -76,13 +76,18 @@ class MissionService {
     await prefs.setString(_key(dateKey), jsonEncode(updated.toJson()));
   }
 
+  /// মিল ভ্যালিডেশন টাইম উইন্ডো চেক
   static bool isWithinTimeWindow(String mealType) {
     final hour = DateTime.now().hour;
+
     if (mealType.toLowerCase() == 'breakfast') {
-      return hour >= 7 && hour < 10;
+      // সকাল ৭:০০ AM থেকে ১১:০০ AM
+      return hour >= 7 && hour < 11;
     } else if (mealType.toLowerCase() == 'lunch') {
-      return hour >= 13 && hour < 15;
+      // দুপুর ১২:০০ PM থেকে ৩:০০ PM
+      return hour >= 12 && hour < 15;
     } else if (mealType.toLowerCase() == 'dinner') {
+      // রাত ৮:০০ PM থেকে ১০:০০ PM
       return hour >= 20 && hour < 22;
     }
     return false;

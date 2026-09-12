@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../services/course_service.dart';
-import '../../services/daily_meal_plan_service.dart';
 import '../courses/course_model.dart';
 import '../quiz/quiz_screen.dart';
 import 'meal_preview_screen.dart';
@@ -40,63 +39,13 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   final ImagePicker _picker = ImagePicker();
 
   // ============================================================
-  // TIME-BASED MEAL WINDOW & LOCK LOGIC
+  // TODAY'S ASSIGNED MEAL (Course & Day Specific)
   // ============================================================
-  // Breakfast: 7:00 AM - 11:00 AM (7 to 11)
-  // Lunch: 12:00 PM - 3:00 PM (12 to 15)
-  // Dinner: 8:00 PM - 10:00 PM (20 to 22)
 
-  String get _currentMealType {
-    final now = DateTime.now();
-    final hour = now.hour;
-
-    if (hour >= 7 && hour < 11) {
-      return "Breakfast";
-    } else if (hour >= 12 && hour < 15) {
-      return "Lunch";
-    } else if (hour >= 20 && hour < 22) {
-      return "Dinner";
-    }
-    return "Locked";
-  }
-
-  bool get _isMealWindowOpen => _currentMealType != "Locked";
-
-  String get _lockMessage {
-    final now = DateTime.now();
-    final hour = now.hour;
-
-    if (hour < 7) {
-      return "Breakfast opens at 7:00 AM (7 AM - 11 AM)";
-    } else if (hour >= 11 && hour < 12) {
-      return "Lunch opens at 12:00 PM (12 PM - 3 PM)";
-    } else if (hour >= 15 && hour < 20) {
-      return "Dinner opens at 8:00 PM (8 PM - 10 PM)";
-    } else {
-      return "All meal windows closed for today. Breakfast opens tomorrow at 7:00 AM";
-    }
-  }
-
-  // ============================================================
-  // TODAY'S ASSIGNED MEAL
-  // ============================================================
   String get _targetMeal {
-    final mealType = _currentMealType;
-
-    // যদি মিল উইন্ডো ওপেন থাকে, তবে DailyMealPlanService থেকে মেনু নেবে
-    if (mealType == "Breakfast") {
-      return DailyMealPlanService.getTodayBreakfast();
-    } else if (mealType == "Lunch") {
-      return DailyMealPlanService.getTodayLunch();
-    } else if (mealType == "Dinner") {
-      return DailyMealPlanService.getTodayDinner();
-    }
-
-    // উইন্ডো বন্ধ থাকলে কোর্সের ডিফল্ট খাবার দেখাবে
-    return _getDefaultCourseMeal();
-  }
-
-  String _getDefaultCourseMeal() {
+    // ------------------------------------------------------------
+    // 1. HEALTHY EATING BASICS (nutrition101)
+    // ------------------------------------------------------------
     if (widget.courseId == "nutrition101") {
       switch (widget.dayNumber) {
         case 1:
@@ -124,6 +73,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
       }
     }
 
+    // ------------------------------------------------------------
+    // 2. PROTEIN & BODY GROWTH (protein)
+    // ------------------------------------------------------------
     if (widget.courseId == "protein") {
       switch (widget.dayNumber) {
         case 1:
@@ -151,6 +103,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
       }
     }
 
+    // ------------------------------------------------------------
+    // 3. VITAMINS & MINERALS (vitamins)
+    // ------------------------------------------------------------
     if (widget.courseId == "vitamins") {
       switch (widget.dayNumber) {
         case 1:
@@ -178,6 +133,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
       }
     }
 
+    // ------------------------------------------------------------
+    // 4. SMART MEAL PLANNING (meal)
+    // ------------------------------------------------------------
     if (widget.courseId == "meal") {
       switch (widget.dayNumber) {
         case 1:
@@ -205,19 +163,10 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   }
 
   // ============================================================
-  // SCAN MEAL (WITH TIME WINDOW VALIDATION)
+  // SCAN MEAL (ANYTIME UNLOCKED)
   // ============================================================
-  Future<void> _scanMeal() async {
-    if (!_isMealWindowOpen) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_lockMessage, style: GoogleFonts.poppins()),
-          backgroundColor: Colors.orange.shade800,
-        ),
-      );
-      return;
-    }
 
+  Future<void> _scanMeal() async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: ImageSource.camera,
@@ -248,7 +197,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              "$_currentMealType verified successfully! (≥75% verified) ✅",
+              "Today's meal matched successfully! (≥75% verified) ✅",
               style: GoogleFonts.poppins(),
             ),
             backgroundColor: const Color(0xff4CAF50),
@@ -288,6 +237,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   // ============================================================
   // START QUIZ
   // ============================================================
+
   Future<void> _startQuiz() async {
     if (!_mealScanned) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -333,6 +283,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   // ============================================================
   // COMPLETE LESSON
   // ============================================================
+
   Future<void> completeLesson() async {
     if (_completing) return;
 
@@ -408,11 +359,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
   // ============================================================
   // BUILD
   // ============================================================
+
   @override
   Widget build(BuildContext context) {
-    final isWindowOpen = _isMealWindowOpen;
-    final activeMealType = _currentMealType;
-
     return Scaffold(
       backgroundColor: const Color(0xffF8FBF8),
       appBar: AppBar(
@@ -430,56 +379,9 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const TaskHeader(),
-            const SizedBox(height: 20),
-
-            // TIME WINDOW STATUS BANNER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: isWindowOpen
-                    ? const Color(0xffE8F5E9)
-                    : Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isWindowOpen
-                      ? const Color(0xffA5D6A7)
-                      : Colors.orange.shade200,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    isWindowOpen
-                        ? Icons.alarm_on_rounded
-                        : Icons.lock_clock_rounded,
-                    color: isWindowOpen
-                        ? const Color(0xff2E7D32)
-                        : Colors.orange.shade900,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      isWindowOpen
-                          ? "$activeMealType Window is Open! Scan your meal now."
-                          : _lockMessage,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isWindowOpen
-                            ? const Color(0xff2E7D32)
-                            : Colors.orange.shade900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
+            const SizedBox(height: 30),
             const TaskRequirement(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 30),
 
             // TODAY'S ASSIGNED MEAL
             Container(
@@ -504,17 +406,13 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       Container(
                         width: 48,
                         height: 48,
-                        decoration: BoxDecoration(
-                          color: isWindowOpen
-                              ? const Color(0xffE8F5E9)
-                              : Colors.grey.shade100,
+                        decoration: const BoxDecoration(
+                          color: Color(0xffE8F5E9),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.restaurant_menu,
-                          color: isWindowOpen
-                              ? const Color(0xff4CAF50)
-                              : Colors.grey,
+                          color: Color(0xff4CAF50),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -523,9 +421,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isWindowOpen
-                                  ? "Current Meal ($activeMealType)"
-                                  : "Today's Meal (Locked)",
+                              "Today's Meal",
                               style: GoogleFonts.poppins(
                                 fontSize: 13,
                                 color: Colors.grey,
@@ -537,9 +433,6 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                               style: GoogleFonts.poppins(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
-                                color: isWindowOpen
-                                    ? Colors.black87
-                                    : Colors.grey.shade600,
                               ),
                             ),
                           ],
@@ -549,9 +442,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    isWindowOpen
-                        ? "Prepare this meal and take a clear photo for AI verification."
-                        : "Camera unlocks during meal windows: Breakfast (7-11 AM), Lunch (12-3 PM), Dinner (8-10 PM).",
+                    "Prepare this meal and take a clear photo for AI verification.",
                     style: GoogleFonts.poppins(
                       fontSize: 13,
                       color: Colors.grey.shade600,
@@ -562,22 +453,18 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 30),
 
-            // MEAL SCANNER CARD
+            // MEAL SCANNER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: isWindowOpen
-                    ? const Color(0xff4CAF50)
-                    : Colors.grey.shade400,
+                color: const Color(0xff4CAF50),
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color:
-                        (isWindowOpen ? const Color(0xff4CAF50) : Colors.grey)
-                            .withOpacity(.25),
+                    color: const Color(0xff4CAF50).withOpacity(.25),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -595,9 +482,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                     child: Icon(
                       _mealScanned
                           ? Icons.check_circle_rounded
-                          : (isWindowOpen
-                                ? Icons.camera_alt_rounded
-                                : Icons.lock_rounded),
+                          : Icons.camera_alt_rounded,
                       size: 48,
                       color: Colors.white,
                     ),
@@ -606,9 +491,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   Text(
                     _mealScanned
                         ? "Meal Verified Successfully"
-                        : (isWindowOpen
-                              ? "Scan Your $activeMealType"
-                              : "Scanner Locked"),
+                        : "Scan Your Meal",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
@@ -619,15 +502,12 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                   const SizedBox(height: 10),
                   Text(
                     _mealScanned
-                        ? "Your meal matched the assigned meal (≥75%)."
-                        : (isWindowOpen
-                              ? "Take a photo of your $activeMealType and let AI verify it."
-                              : _lockMessage),
+                        ? "Your meal matched today's assigned meal (≥75%)."
+                        : "Take a photo of your prepared meal and let AI verify it.",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: Colors.white.withOpacity(.95),
                       height: 1.5,
-                      fontSize: 13,
                     ),
                   ),
                   const SizedBox(height: 26),
@@ -635,16 +515,12 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton.icon(
-                      onPressed: isWindowOpen ? _scanMeal : null,
+                      onPressed: _scanMeal,
                       icon: Icon(
-                        _mealScanned
-                            ? Icons.refresh
-                            : (isWindowOpen ? Icons.camera_alt : Icons.lock),
+                        _mealScanned ? Icons.refresh : Icons.camera_alt,
                       ),
                       label: Text(
-                        _mealScanned
-                            ? "Scan Again"
-                            : (isWindowOpen ? "Open Camera" : "Window Locked"),
+                        _mealScanned ? "Scan Again" : "Open Camera",
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -652,11 +528,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.white70,
-                        foregroundColor: isWindowOpen
-                            ? const Color(0xff4CAF50)
-                            : Colors.grey.shade700,
-                        disabledForegroundColor: Colors.grey.shade700,
+                        foregroundColor: const Color(0xff4CAF50),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -670,7 +542,7 @@ class _DailyTaskScreenState extends State<DailyTaskScreen> {
 
             const SizedBox(height: 30),
 
-            // QUIZ CARD
+            // QUIZ
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
