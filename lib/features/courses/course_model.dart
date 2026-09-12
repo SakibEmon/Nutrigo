@@ -12,7 +12,6 @@ class CourseModel {
   final int completedLessons;
   final Duration estimatedTime;
 
-  // NEW: Course lessons
   final List<Lesson> lessons;
 
   const CourseModel({
@@ -47,30 +46,34 @@ class Lesson {
   final String title;
   bool completed;
   bool unlocked;
+  final String readingContent;
+  final String videoUrl;
 
   Lesson({
     required this.title,
     required this.completed,
     required this.unlocked,
+    this.readingContent = "",
+    this.videoUrl = "",
   });
 
-  // ----------------------------------------------------
-  // Convert Lesson -> JSON
-  // ----------------------------------------------------
-
   Map<String, dynamic> toJson() {
-    return {"title": title, "completed": completed, "unlocked": unlocked};
+    return {
+      "title": title,
+      "completed": completed,
+      "unlocked": unlocked,
+      "readingContent": readingContent,
+      "videoUrl": videoUrl,
+    };
   }
-
-  // ----------------------------------------------------
-  // Convert JSON -> Lesson
-  // ----------------------------------------------------
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
     return Lesson(
       title: json["title"] as String? ?? "",
       completed: json["completed"] as bool? ?? false,
       unlocked: json["unlocked"] as bool? ?? false,
+      readingContent: json["readingContent"] as String? ?? "",
+      videoUrl: json["videoUrl"] as String? ?? "",
     );
   }
 }
@@ -90,10 +93,6 @@ class Week {
     required this.lessons,
   });
 
-  // ----------------------------------------------------
-  // Convert Week -> JSON
-  // ----------------------------------------------------
-
   Map<String, dynamic> toJson() {
     return {
       "weekNumber": weekNumber,
@@ -101,10 +100,6 @@ class Week {
       "lessons": lessons.map((lesson) => lesson.toJson()).toList(),
     };
   }
-
-  // ----------------------------------------------------
-  // Convert JSON -> Week
-  // ----------------------------------------------------
 
   factory Week.fromJson(Map<String, dynamic> json) {
     return Week(

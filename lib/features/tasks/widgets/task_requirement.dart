@@ -49,7 +49,6 @@ class TaskRequirement extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
-
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -61,13 +60,11 @@ class TaskRequirement extends StatelessWidget {
           ),
         ],
       ),
-
       child: Row(
         children: [
           CircleAvatar(
             radius: 24,
             backgroundColor: color.withOpacity(.15),
-
             child: Icon(icon, color: color),
           ),
 

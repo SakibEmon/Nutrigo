@@ -61,6 +61,17 @@
     </application>
 
     <queries>
+        <!-- Web & YouTube URL Queries for Android 11+ -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
+        <package android:name="com.google.android.youtube" />
+
         <!-- Email Intent Query for Android 11+ -->
         <intent>
             <action android:name="android.intent.action.SENDTO"/>

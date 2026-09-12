@@ -43,7 +43,7 @@ class MissionService {
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
 
-  /// নির্দিষ্ট তারিখের ডেটা লোড
+  /// Selected date mission retrieval
   static Future<MissionModel> getMission(String dateKey) async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString(_key(dateKey));
@@ -76,18 +76,18 @@ class MissionService {
     await prefs.setString(_key(dateKey), jsonEncode(updated.toJson()));
   }
 
-  /// মিল ভ্যালিডেশন টাইম উইন্ডো চেক
+  /// Meal validation based on time window
   static bool isWithinTimeWindow(String mealType) {
     final hour = DateTime.now().hour;
 
     if (mealType.toLowerCase() == 'breakfast') {
-      // সকাল ৭:০০ AM থেকে ১১:০০ AM
+      // Mornning 7:00 AM to 11:00 AM
       return hour >= 7 && hour < 11;
     } else if (mealType.toLowerCase() == 'lunch') {
-      // দুপুর ১২:০০ PM থেকে ৩:০০ PM
+      // Afternoon 12:00 PM to 3:00 PM
       return hour >= 12 && hour < 15;
     } else if (mealType.toLowerCase() == 'dinner') {
-      // রাত ৮:০০ PM থেকে ১০:০০ PM
+      // Night 8:00 PM to 10:00 PM
       return hour >= 20 && hour < 22;
     }
     return false;
