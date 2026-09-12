@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/image/image_picker_service.dart';
 import '../../services/gamification_service.dart';
 import '../../services/notification_service.dart';
+import '../feed/feed_screen.dart';
 import '../notifications/notification_screen.dart';
 import '../tasks/meal_preview_screen.dart';
 
@@ -22,7 +23,6 @@ class DashboardScreen extends StatelessWidget {
   // ============================================================
   // STAND-ALONE MEAL SCANNER (ONLY FOOD GIVES +5 XP)
   // ============================================================
-
   Future<void> _scanMeal(BuildContext context) async {
     try {
       final File? image = await ImagePickerService.pickFromCamera();
@@ -31,24 +31,19 @@ class DashboardScreen extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      // MealPreviewScreen-এ কোনো স্পেসিফিক টাস্কের সাথে যুক্ত না করে সাধারণ ফুড স্ক্যানার হিসেবে ওপেন হবে
       final bool? isFoodValid = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
-          builder: (_) => MealPreviewScreen(
-            image: image,
-            targetMeal: "Food item", // Stand-alone analysis
-          ),
+          builder: (_) =>
+              MealPreviewScreen(image: image, targetMeal: "Food item"),
         ),
       );
 
       if (!context.mounted) return;
 
-      // যদি AI কনফার্ম করে এটি সত্যিকারের খাবার, তবেই +5 XP যোগ হবে
       if (isFoodValid == true) {
         await GamificationService.addXp(5, reason: "Valid Food Scanned");
 
-        // খাবার স্ক্যান সম্পূর্ণ হলে পুশ নোটিফিকেশন পাঠানো ও হিস্ট্রিতে সেভ করা
         await NotificationService.showAndSaveNotification(
           title: "Meal Scan Complete! 🍽️",
           body: "Your nutritional analysis is ready. Check your recent meals!",
@@ -86,7 +81,6 @@ class DashboardScreen extends StatelessWidget {
   // ============================================================
   // BUILD
   // ============================================================
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +92,7 @@ class DashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // ==================================================
-              // TOP BAR (Nutrigo Brand & Notification Bell)
+              // TOP BAR (Nutrigo Brand, Nutrition Feed & Notification)
               // ==================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,33 +105,69 @@ class DashboardScreen extends StatelessWidget {
                       color: Colors.black87,
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      // NUTRITION FEED BUTTON
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: IconButton(
-                      tooltip: "Notifications",
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const NotificationScreen(),
+                        child: IconButton(
+                          tooltip: "Nutrition Feed",
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NutritionFeedScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.dynamic_feed_rounded,
+                            color: Color(0xff4CAF50),
                           ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: Color(0xff4CAF50),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: 10),
+
+                      // NOTIFICATIONS BUTTON
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          tooltip: "Notifications",
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const NotificationScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: Color(0xff4CAF50),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
