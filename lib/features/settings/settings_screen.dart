@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../../core/theme/theme_provider.dart';
 import '../login/login_screen.dart';
+import '../reports/health_report_screen.dart';
 import 'my_complaints_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -115,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // ============================================================
-  // CONTACT US / COMPLAINT (1 Time Daily / Direct EmailJS)
+  // CONTACT US / COMPLAINT
   // ============================================================
   bool get _canSubmitComplaint {
     if (_lastComplaintTime == null) return true;
@@ -226,7 +227,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setDialogState(() => isSending = true);
 
                         try {
-                          // ১. ব্যাকগ্রাউন্ডে সরাসরি EmailJS দিয়ে ইমেইল পাঠানো
                           const serviceId = "service_8suz544";
                           const templateId = "template_pdz9ec5";
                           const publicKey = "D_mHA4Hb-IlwUZ1oV";
@@ -234,7 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           final emailUrl = Uri.parse(
                             'https://api.emailjs.com/api/v1.0/email/send',
                           );
-                          final response = await http.post(
+                          await http.post(
                             emailUrl,
                             headers: {
                               'origin': 'http://localhost',
@@ -251,11 +251,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }),
                           );
 
-                          debugPrint(
-                            "EmailJS Response: ${response.statusCode} - ${response.body}",
-                          );
-
-                          // ২. My Complaints পেজের জন্য Firestore ডাটাবেসে সেভ
                           await _firestore.collection('complaints').add({
                             'userId': user.uid,
                             'userEmail': user.email ?? "",
@@ -264,7 +259,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'timestamp': Timestamp.now(),
                           });
 
-                          // ৩. ২৪ ঘণ্টার রেস্ট্রিকশন টাইমার সেট করা
                           await _firestore
                               .collection('users')
                               .doc(user.uid)
@@ -308,9 +302,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ============================================================
-  // APP VERSION & DEVELOPER INFO
-  // ============================================================
   void _showAppVersionDialog() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
@@ -371,9 +362,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  // ============================================================
-  // DELETE ACCOUNT
-  // ============================================================
   void _openDeleteAccountFlow() {
     String? selectedReason;
     final reasons = [
@@ -668,7 +656,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // 3. CONTACT US (COMPLAINT)
+                // 3. MONTHLY HEALTH REPORT (PDF)
+                _settingTile(
+                  icon: Icons.picture_as_pdf_rounded,
+                  title: "Health Report (Monthly)",
+                  subtitle:
+                      "Download & view monthly nutrition, BMI & habit logs",
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HealthReportScreen(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                // 4. CONTACT US (COMPLAINT)
                 _settingTile(
                   icon: Icons.mail_outline_rounded,
                   title: "Contact Us",
@@ -679,7 +684,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // 4. MY COMPLAINTS
+                // 5. MY COMPLAINTS
                 _settingTile(
                   icon: Icons.history_edu_rounded,
                   title: "My Complaints",
@@ -695,7 +700,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // 5. APP VERSION
+                // 6. APP VERSION
                 _settingTile(
                   icon: Icons.info_outline_rounded,
                   title: "App Version",
@@ -704,7 +709,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // 6. DELETE ACCOUNT
+                // 7. DELETE ACCOUNT
                 ListTile(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),

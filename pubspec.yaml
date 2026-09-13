@@ -27,6 +27,8 @@ dependencies:
   timezone: 0.9.4
   url_launcher: ^6.3.2
   webview_flutter: ^4.10.0
+  pdf: ^3.11.1
+  printing: ^5.13.2
 
 dev_dependencies:
   flutter_test:
