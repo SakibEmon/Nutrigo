@@ -42,6 +42,3 @@
 - **Native Action Channels:** Features dedicated **Download** (saving directly to local device storage) and **Share** (system share sheet integration) buttons.
 
 ---
-
-
-NutriGo implements a dual **Cloud + Local Storage Engine** for high reliability and low latency:
