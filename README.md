@@ -43,6 +43,5 @@
 
 ---
 
-## 🏗️ System Architecture & Data Engineering
 
 NutriGo implements a dual **Cloud + Local Storage Engine** for high reliability and low latency:
