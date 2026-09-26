@@ -5,44 +5,44 @@
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-2E7D32?style=for-the-badge)
 
-**NutriGo** holo ekta all-in-one smart mobile health ebong nutrition application ja Computer Vision AI, structured habit tracking, gamification ebong automated vector PDF reporting eksathe provide kore. Traditonal jhamelapurna calorie counting-er poriborte NutriGo instant meal recognition ebong clinical-grade tracking deliver kore.
+**NutriGo** is a comprehensive, AI-powered health and wellness mobile application designed to simplify personal nutrition tracking. Replacing tedious manual calorie counters, NutriGo leverages Computer Vision AI for instant meal logging, structured daily habit missions, gamified score cycles, and clinical-grade multi-page vector PDF reporting.
 
 ---
 
 ## 🚀 Key Features
 
-### 🤖 1. Smart AI Food Scanner & Macronutrient Breakdown
-- **Instant Photo Recognition:** Camera diye khabarer chobi tolar shathe shathe AI dish detect kore ebong assigned diet targets-er sathe match kore.
-- **Detailed Macro Analysis:** Calories, Protein (g), Carbohydrates (g), Fat (g), ebong Dietary Fiber (g) er precision metrics show kore.
-- **Healthy Status & Feedback:** Khabarer quality onujayi "Healthy" ba "Needs Improvement" status ebong AI dietary feedback provide kore.
+### 🤖 1. Smart AI Food Scanner & Macronutrient Profiler
+- **Instant Image Recognition:** Snap a photo of any meal to identify the food type and evaluate dietary matches in real time.
+- **Detailed Macronutrient Profiling:** Automatically extracts and computes precision values for Calories, Protein (g), Carbohydrates (g), Fat (g), and Dietary Fiber (g).
+- **Nutritional Quality Classification:** Generates an immediate "Healthy" or "Needs Improvement" assessment alongside personalized dietary feedback.
 
-### 🍽️ 2. Daily Meal Missions & Habit Formation
-- **Three-Tier Daily Goals:** Breakfast, Lunch, ebong Dinner-er structured daily tasks.
-- **Diurnal Time Window Detection:** Shokal (05:00-11:00) ebong rat (18:00-23:00) er meal windows auto-match kore task status update kore.
-- **Dynamic Suggestions:** Julian calendar day logic use kore daily fresh meal ideas show kore.
+### 🍽️ 2. Daily Meal Missions & Habit Tracking
+- **Three-Tier Daily Goals:** Structured logging targets for Breakfast, Lunch, and Dinner to maintain daily eating discipline.
+- **Diurnal Time Window Detection:** Automatically categorizes meals into morning (05:00–11:00) and evening (18:00–23:00) eating periods to track adherence seamlessly.
+- **Dynamic Meal Recommendations:** Rotates curated recipe suggestions using Julian calendar day calculations to prevent meal plan fatigue.
 
 ### 📚 3. Guided Nutrition Curriculum
-- **Structured Pathways:** 4-ti complete nutrition tracks jekhane total 44-ti guided lessons royeche.
-- **Sequential Unlocking:** Previous lesson shesh na hole porer lesson lock thake.
-- **Spaced-Repetition Cooldown:** Proti lesson seshe 6-ghontar cooldown window enforce kora hoy jate learning retention maximum thake.
+- **Structured Learning Roadmaps:** 4 complete nutrition tracks comprising 44 interactive, bite-sized lessons.
+- **Sequential Pacing:** Enforces prerequisite-based lesson unlocking to ensure steady, structured learning.
+- **Spaced-Repetition Cooldown:** Implements a mandatory 6-hour cooldown window between lesson completions to encourage real-world implementation.
 
 ### 🎮 4. Gamification, Streaks & Leaderboard
-- **90-Day Cyclical Scoring:** Meals (+1 pt), Lessons (+3 pts), ebong Analysis (+1 pt) er dynamic point accumulation.
-- **Quarterly Score Archive:** Proti 90-din por por current cycle points `score_history` te auto-archive hoy ebong fresh cycle start hoy.
-- **Day Streaks & Leaderboard:** Active participation er jonno dynamic fire streak counter (🔥) ebong global ranking leaderboard.
+- **Dynamic 90-Day Score Cycles:** Users earn points for logged meals (+1 pt), finished lessons (+3 pts), and AI analyses (+1 pt).
+- **Automated Cycle Archiving:** Automatically preserves scores into the user's `score_history` sub-collection every 90 days before resetting the cycle.
+- **Day Streaks & Social Rankings:** Features active fire streaks (🔥) and an interactive leaderboard to encourage consistent daily engagement.
 
-### 👥 5. Community & Social Feed
-- Healthy meals share kora, community meal photos dekha ebong inter-user likes/cheers er moddhome social motivation build kora.
+### 👥 5. Community & Social Meal Feed
+- Share healthy plates, review community meal submissions, and motivate peers with reactions and positive feedback.
 
-### 📄 6. Two-Page Vector PDF Health Report Engine
-- **Multi-Source Aggregation:** Firestore profile data, local SharedPreferences meal logs ebong completed courses aggregate kore clinical-grade report banay.
-- **Vector PDF Layout:**
-  - **Page 1:** User biometrics, BMI, overall health score, scanned foods list ebong course progression summary.
-  - **Page 2:** Puro masher 31-day activity completion matrix (Breakfast, Dinner, Daily Tasks).
-- **Native Platform Channels:** Dedicated **Download** (device local storage save) ebong **Share** (WhatsApp, Mail etc.) button actions.
+### 📄 6. Multi-Page Vector PDF Health Report Engine
+- **Multi-Source Data Aggregation:** Aggregates remote user profile data from Firestore with local meal histories and course progress from SharedPreferences.
+- **Two-Page Vector Document:**
+  - **Page 1:** Summarizes personal biometrics, BMI, health scores, scanned food logs, and course completion metrics.
+  - **Page 2:** Displays a complete day-by-day compliance matrix tracking Breakfast, Dinner, and Daily Tasks.
+- **Native Action Channels:** Features dedicated **Download** (saving directly to local device storage) and **Share** (system share sheet integration) buttons.
 
 ---
 
 ## 🏗️ System Architecture & Data Engineering
 
-NutriGo ekta hybrid **Cloud + Local Storage Engine** use kore:
+NutriGo implements a dual **Cloud + Local Storage Engine** for high reliability and low latency:
